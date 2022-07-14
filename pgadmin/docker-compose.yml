@@ -8,3 +8,8 @@ services:
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
       - "5050:80"
+    volumes:
+      - pgadmin4_volume:/var/lib/postgresql/data
+volumes:
+  pgadmin4_volume:
+    external: true
