@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3.9-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - rabbitmq_docker_net
+    hostname: docker_rabit
+
+networks:
+  rabbitmq_docker_net:
+    driver: bridge
