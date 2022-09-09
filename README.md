@@ -1,9 +1,8 @@
-# Postgres and MongoDB Docker Containers
+# Docker Compose Databases
 
-This repo contains docker compose files which can be used to run a PostGres database
-with PgAdmin 4, or a MongoDB server.
+This repo contains docker compose files for various databases.
 
-The defaults are as follows:
+For PostGres, the defaults are as follows:
 - Postgres user: `postgres`
 - Postgres pw: `password`
 - PgAdmin username: `admin@admin.com`
