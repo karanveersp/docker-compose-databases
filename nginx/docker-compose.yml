@@ -1,25 +1,41 @@
 services:
+  # The Nginx service
   nginx:
     image: nginx:latest
     container_name: nginx-container
     ports:
-      - "80:80"
-      - "443:443"
+      - "80:80" # HTTP
+      - "443:443" # HTTPS
+    # The restart policy for the container
     restart: always
     volumes:
+      # Mount the directory for SSL configuration
+      - ./certbot/conf/:/etc/nginx/ssl/
+      # Mount the public certificate
+      - ${BASE_PUBLIC_CERT_PATH}:/etc/nginx/ssl/live/${BASE_HOST_NAME}/fullchain.pem
+      # Mount the private key
+      - ${BASE_PRIVATE_CERT_PATH}:/etc/nginx/ssl/live/${BASE_HOST_NAME}/privkey.pem
+      # Mount the index.html file
+      - ${BASE_INDEX_HTML}:/var/www/html/index.html:ro
+      # Mount the Nginx configuration files
       - ./nginx-config/:/etc/nginx/conf.d/:ro
+      # Mount the proxy parameters
       - ./proxy_params:/etc/nginx/proxy_params:ro
-      - ./certbot/www:/var/www/certbot/:ro
-      - ./certbot/conf/:/etc/nginx/ssl/:ro
+      # Mount the directory for Certbot's webroot
+      - ./certbot/www/:/var/www/certbot/:ro
     networks:
       - shared_network
+  # The Certbot service
   certbot:
     image: certbot/certbot:latest
     volumes:
+      # Mount the directory for Certbot's webroot
       - ./certbot/www/:/var/www/certbot/:rw
+      # Mount the directory for Certbot's configuration and certificates
       - ./certbot/conf/:/etc/letsencrypt/:rw
     networks:
       - shared_network
+# The networks used by the services
 networks:
   shared_network:
     external: true

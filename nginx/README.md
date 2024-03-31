@@ -7,6 +7,8 @@ This config is based on the tutorial here: https://mindsers.blog/en/post/https-u
 
 The certbot service is used to issue certificates for any subdomains you create. Launch `docker compose up` and then run the following in a different shell.
 
+NOTE: Add an `A record` to your DNS for your host before running certbot so that the subdomain routes to your server's ip!
+
 ```sh
 docker compose run --rm  certbot certonly --webroot --webroot-path /var/www/certbot/ --dry-run -d sub.domain.tdl
 ```
@@ -39,34 +41,6 @@ docker compose run --rm certbot renew
 
 # Overview of docker compose file
 
-```yml
-services:
-  nginx:
-    image: nginx:latest
-    container_name: nginx-container
-    ports:
-      - "80:80"
-      - "443:443"
-    restart: always
-    volumes:
-      - ./nginx-config/:/etc/nginx/conf.d/:ro
-      - ./proxy_params:/etc/nginx/proxy_params:ro
-      - ./certbot/www:/var/www/certbot/:ro
-      - ./certbot/conf/:/etc/nginx/ssl/:ro
-    networks:
-      - shared_network
-  certbot:
-    image: certbot/certbot:latest
-    volumes:
-      - ./certbot/www/:/var/www/certbot/:rw
-      - ./certbot/conf/:/etc/letsencrypt/:rw
-    networks:
-      - shared_network
-networks:
-  shared_network:
-    external: true
-```
-
 This Docker Compose file defines two services: `nginx` and `certbot`. 
 
 The `nginx` service uses the latest version of the nginx image. It is named `nginx-container`. It exposes ports 80 and 443 to the host machine. The `restart: always` directive ensures that the container will always restart if it stops. If it is manually stopped, it is restarted only when Docker daemon starts or the container itself is manually restarted.
@@ -76,7 +50,7 @@ The `volumes` directive is used to mount directories from the host machine to th
 - `./nginx-config/` on the host is mounted to `/etc/nginx/conf.d/` in the container. The `:ro` at the end means the volume is read-only inside the container.
 - `./proxy_params` on the host is mounted to `/etc/nginx/proxy_params` in the container, also as read-only.
 - `./certbot/www/` on the host is mounted to `/var/www/certbot/` in the container, as read-only.
-- `./certbot/conf/` on the host is mounted to `/etc/nginx/ssl/` in the container, as read-only.
+- `./certbot/conf/` on the host is mounted to `/etc/nginx/ssl/` in the container - is not read only because the base cert needs to be written there (specified by env var).
 
 The `networks` directive is used to connect this service to the `shared_network` network.
 
